@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -46,10 +47,10 @@
       flex-direction: column;
       align-items: center;
       width: 90%;
-      max-width: 700px;
+      max-width: 800px;
       margin: 0 auto;
     }
-    input, select, button {
+    input, select, button, textarea {
       padding: 10px;
       margin: 10px;
       border-radius: 10px;
@@ -57,6 +58,13 @@
       background: #1c1c1c;
       color: #00ffe7;
       box-shadow: 0 0 10px #00ffe7;
+      font-family: 'Orbitron', sans-serif;
+    }
+    textarea {
+      width: 90%;
+      max-width: 700px;
+      height: 200px;
+      resize: vertical;
     }
     button:hover {
       background: #00ffe7;
@@ -106,7 +114,9 @@
     <h1>🎥 SRT Translator.AI</h1>
     <button class="option-btn" onclick="showSection('video')">Translate Video Subtitles</button>
     <button class="option-btn" onclick="showSection('srt')">Translate SRT File</button>
-  </div>  <div class="section" id="videoSection">
+  </div>
+
+  <div class="section" id="videoSection">
     <h2>🎬 Translate Video Subtitles</h2>
     <input type="file" id="videoInput" accept="video/*" />
     <label>Subtitle Y-Offset (px from top):</label>
@@ -124,7 +134,9 @@
       <video id="videoPlayer" width="640" height="360" controls></video>
       <div id="scannerLens"></div>
     </div>
-  </div>  <div class="section" id="srtSection">
+  </div>
+
+  <div class="section" id="srtSection">
     <h2>📄 Translate SRT File</h2>
     <input type="file" id="srtInput" accept=".srt" />
     <select id="langSelectSrt">
@@ -133,17 +145,20 @@
       <option value="ur">Urdu</option>
       <option value="hi">Hindi</option>
     </select>
+    <button onclick="previewSrt()">Preview & Edit</button>
+    <textarea id="editableSrtArea" placeholder="Preview will appear here..."></textarea>
     <button onclick="translateSrtFile()">Translate</button>
-  </div>  <div id="popup">🚫 Network Error! Check your internet connection.</div>  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>  <script>
+  </div>
+
+  <div id="popup">🚫 Network Error! Check your internet connection.</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+  <script>
     function showSection(section) {
       document.getElementById('home').style.display = 'none';
       document.getElementById('videoSection').style.display = 'none';
       document.getElementById('srtSection').style.display = 'none';
-      if (section === 'video') {
-        document.getElementById('videoSection').style.display = 'flex';
-      } else {
-        document.getElementById('srtSection').style.display = 'flex';
-      }
+      document.getElementById(section + 'Section').style.display = 'flex';
     }
 
     const videoInput = document.getElementById('videoInput');
@@ -232,14 +247,20 @@
       });
     }
 
-    async function translateSrtFile() {
+    async function previewSrt() {
       const input = document.getElementById('srtInput');
-      const lang = document.getElementById('langSelectSrt').value;
       const file = input.files[0];
-      if (!file) return alert("Please upload a .srt file first.");
-
+      if (!file) return alert("Upload a .srt file first.");
       const text = await file.text();
-      const lines = text.split('\n');
+      document.getElementById('editableSrtArea').value = text;
+    }
+
+    async function translateSrtFile() {
+      const lang = document.getElementById('langSelectSrt').value;
+      const rawText = document.getElementById('editableSrtArea').value;
+      if (!rawText.trim()) return alert("Paste or preview the SRT content first.");
+
+      const lines = rawText.split('\n');
       const result = [];
 
       for (let i = 0; i < lines.length; i++) {
@@ -266,5 +287,6 @@
       a.download = filename;
       a.click();
     }
-  </script></body>
+  </script>
+</body>
 </html>
